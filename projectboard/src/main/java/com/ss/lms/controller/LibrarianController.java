@@ -49,6 +49,7 @@ public class LibrarianController {
 		}else {
 			branch.setBranchName(updateBranch.getBranchName());
 			branch.setBranchAddress(updateBranch.getBranchAddress());
+			library.save(branch);
 			return new ResponseEntity<BranchPOJO>(branch, HttpStatus.ACCEPTED);
 		}
 		
