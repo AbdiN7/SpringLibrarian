@@ -23,36 +23,29 @@ public class LibrarianController {
 	@Autowired
 	private LibrarianService library;
 	
-	@GetMapping("test")
-	@ResponseBody public String test() {
-		return "test";
-	}
-
 	@GetMapping("branches")
 	@ResponseBody public ResponseEntity<?> getBranches(){
 		Iterable<BranchPOJO> branch = library.getBranches();
 		return new ResponseEntity<Iterable<BranchPOJO>>(branch, HttpStatus.OK);
 	}
 	
-	//404 
 	@GetMapping("branch/{branchId}")
 	@ResponseBody public ResponseEntity<?> getBranchInfo(@PathVariable int branchId){
 		BranchPOJO branch = library.getBranchInfo(branchId);
 		
 		if(branch == null) {
-			return new ResponseEntity<String>("Data not found", HttpStatus.OK);
+			return new ResponseEntity<String>("Data not found", HttpStatus.NOT_FOUND);
 		}else {
 			return new ResponseEntity<BranchPOJO>(branch, HttpStatus.OK);	
 		}
 	}
 	
-	//bad request (branch doesn't exist)
 	@PutMapping("branch/{branchId}")
 	@ResponseBody public ResponseEntity<?> updateBranch(@PathVariable int branchId, @RequestBody BranchPOJO updateBranch){
 		BranchPOJO branch = library.getBranchInfo(branchId);
 		
 		if(branch == null) {			
-			return new ResponseEntity<String>("Branch does not exist", HttpStatus.ACCEPTED);
+			return new ResponseEntity<String>("Branch does not exist", HttpStatus.NOT_FOUND);
 		}else {
 			branch.setBranchName(updateBranch.getBranchName());
 			branch.setBranchAddress(updateBranch.getBranchAddress());
@@ -61,36 +54,35 @@ public class LibrarianController {
 		
 	}
 	
-	//bad request (branch doesn't exist)
 	@GetMapping("branch/{branchId}/books")
 	@ResponseBody public ResponseEntity<?> getBooks(@PathVariable int branchId) {
+		BranchPOJO branch = library.getBranchInfo(branchId);
+		if(branch == null) {
+			return new ResponseEntity<String>("Branch does not exist", HttpStatus.NOT_FOUND);
+		}else {
 		Iterable<LibraryPOJO> lib = library.getBooks(branchId);
 		return new ResponseEntity<Iterable<LibraryPOJO>>(lib, HttpStatus.OK);
+		}
 	}
 	
-	//404
 	@GetMapping("branch/{branchId}/book/{bookId}")
 	@ResponseBody public ResponseEntity<?> getBookInfo(@PathVariable int branchId, @PathVariable int bookId) {
 		LibraryPOJO lib = library.getBookInfo(bookId, branchId);
 		
 		if(lib.getBookTitle() == null) {
-			return new ResponseEntity<String>("No Books with that ID exists at this Branch", HttpStatus.OK);
+			return new ResponseEntity<String>("No Books with that ID exists at this Branch", HttpStatus.NOT_FOUND);
 		}else {
 			return new ResponseEntity<LibraryPOJO>(lib, HttpStatus.OK);	
 		}
 	}
 	
-	//bad request (branch doesn't have any of that book)
 	@PutMapping("branch/{branchId}/book/{bookId}")
 	@ResponseBody public ResponseEntity<?> updateNoofCopies(@PathVariable int branchId, @PathVariable int bookId, @RequestBody LibraryPOJO newCopies) {
 		LibraryPOJO lib = library.addCopies(branchId, bookId, newCopies);
 		if(lib.getBookTitle() == null) {
-			return new ResponseEntity<String>("No Books with that ID exists at this Branch", HttpStatus.OK);
+			return new ResponseEntity<String>("No Books with that ID exists at this Branch", HttpStatus.NOT_FOUND);
 		}else {
 			return new ResponseEntity<LibraryPOJO>(lib, HttpStatus.ACCEPTED);	
 		}
 	}
-	
-	//Proper HTTP Codes
-	//Content negotiation	
 }
