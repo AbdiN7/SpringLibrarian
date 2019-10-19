@@ -3,13 +3,13 @@ package com.ss.lms.dao;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import com.ss.lms.model.BookCopies;
 import com.ss.lms.model.BookCopiesId;
-import com.ss.lms.model.LibraryBook;
 
 @Repository
-public interface BookCopiesDAO extends CrudRepository<LibraryBook, BookCopiesId>{
+public interface BookCopiesDAO extends CrudRepository<BookCopies, BookCopiesId>{
 	
-	public Iterable<LibraryBook> getByBranchId(int branchId);
+	public Iterable<BookCopies> getByIdBranchId(int branchId);
 	
-	public LibraryBook getByBranchIdAndBookId(int branchId, int bookId);
+	public BookCopies getByIdBranchIdAndIdBookId(int branchId, int bookId);
 }

@@ -3,11 +3,11 @@ package com.ss.lms.dao;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.ss.lms.model.BookPOJO;
+import com.ss.lms.model.Book;
 
 @Repository
-public interface BookDAO extends CrudRepository<BookPOJO, Long>{
+public interface BookDAO extends CrudRepository<Book, Long>{
 	
-public BookPOJO getByBookId(int bookId);
+public Book getByBookId(int bookId);
 
 }

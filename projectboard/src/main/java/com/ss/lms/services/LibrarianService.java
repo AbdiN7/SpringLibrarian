@@ -7,11 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ss.lms.dao.BookCopiesDAO;
-import com.ss.lms.dao.BookDAO;
 import com.ss.lms.dao.BranchDAO;
-import com.ss.lms.model.BranchPOJO;
-import com.ss.lms.model.LibraryBook;
-import com.ss.lms.model.LibraryPOJO;
+import com.ss.lms.model.BookCopies;
+import com.ss.lms.model.Branch;
 
 
 @Service
@@ -21,62 +19,57 @@ public class LibrarianService {
 	private BranchDAO branch;
 	
 	@Autowired
-	private BookDAO book;
-	
-	@Autowired
 	private BookCopiesDAO copies;
 	
-	public Iterable<BranchPOJO> getBranches() {
+	public Iterable<Branch> getBranches() {
 		return branch.findAll();
 	}
 	
-	public BranchPOJO getBranchInfo(int branchId) {
+	public Branch getBranchInfo(int branchId) {
 		return branch.getByBranchId(branchId);
 	}
 	
-	public BranchPOJO save(BranchPOJO updateBranch) {
-		BranchPOJO branchCheck = branch.getByBranchId(updateBranch.getBranchId());
+	public Branch save(Branch updateBranch) {
+		Branch branchCheck = branch.getByBranchId(updateBranch.getBranchId());
 		
-		if(branchCheck == null) {return new BranchPOJO();}
+		if(branchCheck == null) {return new Branch();}
 		return branch.save(updateBranch);
 	}
 	
-	public Iterable<LibraryPOJO> getBooks(int branchId) {
+	public Iterable<BookCopies> getBooks(int branchId) {
 		
-		List<LibraryPOJO> output = new ArrayList<>();
-		copies.getByBranchId(branchId).forEach(entry->{
-			LibraryPOJO lib = new LibraryPOJO();
-			lib.setBookTitle(book.getByBookId(entry.getBookId()).getTitle());
-			lib.setBranchName(branch.getByBranchId(entry.getBranchId()).getBranchName());
+		List<BookCopies> output = new ArrayList<>();
+		copies.getByIdBranchId(branchId).forEach(entry->{
+			BookCopies lib = new BookCopies();
+			lib.setBook(entry.getBook());
+			lib.setBranch(entry.getBranch());
 			lib.setNoOfCopies(entry.getNoOfCopies());
 			output.add(lib);
 		});;
 		return output;
 	}
 	
-	public LibraryPOJO getBookInfo(int bookId, int branchId) {
+	public BookCopies getBookInfo(int bookId, int branchId) {
 		
-		LibraryBook result = copies.getByBranchIdAndBookId(branchId, bookId);
+		BookCopies result = copies.getByIdBranchIdAndIdBookId(branchId, bookId);
+		BookCopies lib = new BookCopies();
+		if(result == null) {return lib;}
 		
-		if(result == null) {return new LibraryPOJO();}
-		LibraryPOJO lib = new LibraryPOJO();
-		lib.setBookTitle(book.getByBookId(result.getBookId()).getTitle());
-		lib.setBranchName(branch.getByBranchId(result.getBranchId()).getBranchName());
+		lib.setBook(result.getBook());
+		lib.setBranch(result.getBranch());
 		lib.setNoOfCopies(result.getNoOfCopies());
 		return lib;
 	}
 	
-	public LibraryPOJO addCopies(int branchId, int bookId, LibraryPOJO newCopies) {
-		LibraryBook result = copies.getByBranchIdAndBookId(branchId, bookId);
+	public BookCopies addCopies(int branchId, int bookId, BookCopies newCopies) {
+		BookCopies result = copies.getByIdBranchIdAndIdBookId(branchId, bookId);
+		BookCopies lib = new BookCopies();
+		if(result == null) {return lib;}
 		
-		if(result == null) {return new LibraryPOJO();}
-		result.addCopies(newCopies.getNoOfCopies());
 		copies.save(result);
-		
-		LibraryPOJO lib = new LibraryPOJO();
-		lib.setBookTitle(book.getByBookId(result.getBookId()).getTitle());
-		lib.setBranchName(branch.getByBranchId(result.getBranchId()).getBranchName());
-		lib.setNoOfCopies(result.getNoOfCopies());
+		lib.setBook(result.getBook());
+		lib.setBranch(result.getBranch());
+		lib.setNoOfCopies(result.getNoOfCopies() + newCopies.getNoOfCopies());
 		return lib;
 	}
 	

@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ss.lms.model.BranchPOJO;
-import com.ss.lms.model.LibraryPOJO;
+import com.ss.lms.model.BookCopies;
+import com.ss.lms.model.Branch;
 import com.ss.lms.services.LibrarianService;
 
 
@@ -25,24 +25,24 @@ public class LibrarianController {
 	
 	@GetMapping("branches")
 	@ResponseBody public ResponseEntity<?> getBranches(){
-		Iterable<BranchPOJO> branch = library.getBranches();
-		return new ResponseEntity<Iterable<BranchPOJO>>(branch, HttpStatus.OK);
+		Iterable<Branch> branch = library.getBranches();
+		return new ResponseEntity<Iterable<Branch>>(branch, HttpStatus.OK);
 	}
 	
 	@GetMapping("branch/{branchId}")
 	@ResponseBody public ResponseEntity<?> getBranchInfo(@PathVariable int branchId){
-		BranchPOJO branch = library.getBranchInfo(branchId);
+		Branch branch = library.getBranchInfo(branchId);
 		
 		if(branch == null) {
 			return new ResponseEntity<String>("Data not found", HttpStatus.NOT_FOUND);
 		}else {
-			return new ResponseEntity<BranchPOJO>(branch, HttpStatus.OK);	
+			return new ResponseEntity<Branch>(branch, HttpStatus.OK);	
 		}
 	}
 	
 	@PutMapping("branch/{branchId}")
-	@ResponseBody public ResponseEntity<?> updateBranch(@PathVariable int branchId, @RequestBody BranchPOJO updateBranch){
-		BranchPOJO branch = library.getBranchInfo(branchId);
+	@ResponseBody public ResponseEntity<?> updateBranch(@PathVariable int branchId, @RequestBody Branch updateBranch){
+		Branch branch = library.getBranchInfo(branchId);
 		
 		if(branch == null) {			
 			return new ResponseEntity<String>("Branch does not exist", HttpStatus.NOT_FOUND);
@@ -50,40 +50,40 @@ public class LibrarianController {
 			branch.setBranchName(updateBranch.getBranchName());
 			branch.setBranchAddress(updateBranch.getBranchAddress());
 			library.save(branch);
-			return new ResponseEntity<BranchPOJO>(branch, HttpStatus.ACCEPTED);
+			return new ResponseEntity<Branch>(branch, HttpStatus.ACCEPTED);
 		}
 		
 	}
 	
 	@GetMapping("branch/{branchId}/books")
 	@ResponseBody public ResponseEntity<?> getBooks(@PathVariable int branchId) {
-		BranchPOJO branch = library.getBranchInfo(branchId);
+		Branch branch = library.getBranchInfo(branchId);
 		if(branch == null) {
 			return new ResponseEntity<String>("Branch does not exist", HttpStatus.NOT_FOUND);
 		}else {
-		Iterable<LibraryPOJO> lib = library.getBooks(branchId);
-		return new ResponseEntity<Iterable<LibraryPOJO>>(lib, HttpStatus.OK);
+		Iterable<BookCopies> lib = library.getBooks(branchId);
+		return new ResponseEntity<Iterable<BookCopies>>(lib, HttpStatus.OK);
 		}
 	}
 	
 	@GetMapping("branch/{branchId}/book/{bookId}")
 	@ResponseBody public ResponseEntity<?> getBookInfo(@PathVariable int branchId, @PathVariable int bookId) {
-		LibraryPOJO lib = library.getBookInfo(bookId, branchId);
+		BookCopies lib = library.getBookInfo(bookId, branchId);
 		
-		if(lib.getBookTitle() == null) {
+		if(lib.getBook().getTitle() == null) {
 			return new ResponseEntity<String>("No Books with that ID exists at this Branch", HttpStatus.NOT_FOUND);
 		}else {
-			return new ResponseEntity<LibraryPOJO>(lib, HttpStatus.OK);	
+			return new ResponseEntity<BookCopies>(lib, HttpStatus.OK);	
 		}
 	}
 	
 	@PutMapping("branch/{branchId}/book/{bookId}")
-	@ResponseBody public ResponseEntity<?> updateNoofCopies(@PathVariable int branchId, @PathVariable int bookId, @RequestBody LibraryPOJO newCopies) {
-		LibraryPOJO lib = library.addCopies(branchId, bookId, newCopies);
-		if(lib.getBookTitle() == null) {
+	@ResponseBody public ResponseEntity<?> updateNoofCopies(@PathVariable int branchId, @PathVariable int bookId, @RequestBody BookCopies newCopies) {
+		BookCopies lib = library.addCopies(branchId, bookId, newCopies);
+		if(lib.getBook().getTitle() == null) {
 			return new ResponseEntity<String>("No Books with that ID exists at this Branch", HttpStatus.NOT_FOUND);
 		}else {
-			return new ResponseEntity<LibraryPOJO>(lib, HttpStatus.ACCEPTED);	
+			return new ResponseEntity<BookCopies>(lib, HttpStatus.ACCEPTED);	
 		}
 	}
 }
